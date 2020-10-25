@@ -1,0 +1,342 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.1.1" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.1.1" type="image/png" sizes="32x32"><meta name="description" content="在搭建项目的时候，我们往往会选择一个可靠的脚手架来创建项目，比如vue-cli等。一个可靠的脚手架，往往能帮助我们减少很多的工作量，起到事半功倍的效果。鉴于功能需求的不确定性，通用的脚手架框架有时并不能很好的满足我们的需求，这时，我们就会想办法建立自己的脚手架工具。本文主要介绍搭建一个简单cli脚手架。  一、脚手架工具涉及的内容 脚手架工具其实就是一个自动化创建项目的命令行工具。所以一个脚手架">
+<meta property="og:type" content="article">
+<meta property="og:title" content="搭建简单的cli工具">
+<meta property="og:url" content="https://aurpustre.github.io/2020/10/16/make-cli/index.html">
+<meta property="og:site_name" content="Aurpustre&#39;s Blog">
+<meta property="og:description" content="在搭建项目的时候，我们往往会选择一个可靠的脚手架来创建项目，比如vue-cli等。一个可靠的脚手架，往往能帮助我们减少很多的工作量，起到事半功倍的效果。鉴于功能需求的不确定性，通用的脚手架框架有时并不能很好的满足我们的需求，这时，我们就会想办法建立自己的脚手架工具。本文主要介绍搭建一个简单cli脚手架。  一、脚手架工具涉及的内容 脚手架工具其实就是一个自动化创建项目的命令行工具。所以一个脚手架">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-10-15T16:02:53.000Z">
+<meta property="article:modified_time" content="2020-10-25T15:40:17.699Z">
+<meta property="article:author" content="Aurpustre">
+<meta property="article:tag" content="cli">
+<meta property="article:tag" content="node">
+<meta name="twitter:card" content="summary"><title>搭建简单的cli工具 | Aurpustre's Blog</title><link ref="canonical" href="https://aurpustre.github.io/2020/10/16/make-cli/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.1.1"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":true,"scrollDownIcon":false},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"default","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: false,
+  pjax: undefined,
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"复制","copySuccess":"复制成功","copyError":"复制失败"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.2.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">首页</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">归档</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">分类</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">标签</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">搜索</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner"><div class="header-banner-info"><div class="header-banner-info__title">Aurpustre's Blog</div><div class="header-banner-info__subtitle">Seeing is believing</div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">搭建简单的cli工具</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">发表于</span><span class="post-meta-item__value">2020-10-16</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">更新于</span><span class="post-meta-item__value">2020-10-25</span></span><span class="post-meta-item post-meta-item--wordcount"><span class="post-meta-item__icon"><i class="far fa-file-word"></i></span><span class="post-meta-item__info">字数统计</span><span class="post-meta-item__value">2.2k</span></span><span class="post-meta-item post-meta-item--readtime"><span class="post-meta-item__icon"><i class="far fa-clock"></i></span><span class="post-meta-item__info">阅读时长</span><span class="post-meta-item__value">20分</span></span><span class="post-meta-item post-meta-item--visitors"><span class="post-meta-item__icon"><i class="fas fa-eye"></i></span><span class="post-meta-item__info">阅读次数</span><span class="post-meta-item__value" id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body"><h1 id=""><a href="#" class="headerlink" title=""></a></h1><section id="nice" data-tool="mdnice编辑器" data-website="https://www.mdnice.com" style="font-size: 16px; color: black; padding: 0 10px; line-height: 1.6; word-spacing: 0px; letter-spacing: 0px; word-break: break-word; word-wrap: break-word; text-align: left; font-family: Optima-Regular, Optima, PingFangSC-light, PingFangTC-light, 'PingFang SC', Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;"><blockquote class="multiquote-1" data-tool="mdnice编辑器" style="border: none; display: block; font-size: 0.9em; overflow: auto; overflow-scrolling: touch; background: rgba(0, 0, 0, 0.05); padding-top: 10px; padding-bottom: 10px; padding-right: 10px; margin-bottom: 20px; margin-top: 20px; border-left: 2px solid #888; border-right: 2px solid #888; padding-left: 1em; color: #777;">
+<p style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; text-align: justify; margin: 0px; color: black; line-height: 26px;">在搭建项目的时候，我们往往会选择一个可靠的脚手架来创建项目，比如vue-cli等。一个可靠的脚手架，往往能帮助我们减少很多的工作量，起到事半功倍的效果。鉴于功能需求的不确定性，通用的脚手架框架有时并不能很好的满足我们的需求，这时，我们就会想办法建立自己的脚手架工具。<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">本文主要介绍搭建一个简单cli脚手架</code>。</p>
+</blockquote>
+<h2 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0px; font-weight: bold; font-size: 22px; color: #009688; padding-left: 10px; margin: 1em auto; border-left: 3px solid #009688;"><span class="prefix" style="display: none;"></span><span class="content">一、脚手架工具涉及的内容</span><span class="suffix"></span></h2>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">脚手架工具其实就是一个自动化创建项目的命令行工具。所以一个脚手架工具应该包括以下部分：</p>
+<ul data-tool="mdnice编辑器" style="margin-top: 8px; margin-bottom: 8px; padding-left: 25px; color: black; list-style-type: disc;">
+<li><section style="margin-top: 5px; margin-bottom: 5px; line-height: 26px; text-align: left; color: rgb(1,1,1); font-weight: 500;">一个项目模板库，供创建项目时下载</section></li><li><section style="margin-top: 5px; margin-bottom: 5px; line-height: 26px; text-align: left; color: rgb(1,1,1); font-weight: 500;">用户命令行交互，满足用户不同需求的选择</section></li><li><section style="margin-top: 5px; margin-bottom: 5px; line-height: 26px; text-align: left; color: rgb(1,1,1); font-weight: 500;">命令行信息提示</section></li><li><section style="margin-top: 5px; margin-bottom: 5px; line-height: 26px; text-align: left; color: rgb(1,1,1); font-weight: 500;">自动执行命令，如自动安装依赖等</section></li><li><section style="margin-top: 5px; margin-bottom: 5px; line-height: 26px; text-align: left; color: rgb(1,1,1); font-weight: 500;">检测工具版本，提示更新</section></li><li><section style="margin-top: 5px; margin-bottom: 5px; line-height: 26px; text-align: left; color: rgb(1,1,1); font-weight: 500;">...</section></li></ul>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">总之，脚手架工具就是在我们创建项目的时候实现自动化，所以，所有能想到的操作都可以放入其中。</p>
+<a id="more"></a>
+<blockquote class="multiquote-1" data-tool="mdnice编辑器" style="border: none; display: block; font-size: 0.9em; overflow: auto; overflow-scrolling: touch; background: rgba(0, 0, 0, 0.05); padding-top: 10px; padding-bottom: 10px; padding-right: 10px; margin-bottom: 20px; margin-top: 20px; border-left: 2px solid #888; border-right: 2px solid #888; padding-left: 1em; color: #777;">
+<p style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; text-align: justify; margin: 0px; color: black; line-height: 26px;">针对上面所描述的脚手架的内容，我们可以使用一些开源库去实现。</p>
+</blockquote>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">主要会涉及到以下这些</p>
+<blockquote class="multiquote-1" data-tool="mdnice编辑器" style="border: none; display: block; font-size: 0.9em; overflow: auto; overflow-scrolling: touch; background: rgba(0, 0, 0, 0.05); padding-top: 10px; padding-bottom: 10px; padding-right: 10px; margin-bottom: 20px; margin-top: 20px; border-left: 2px solid #888; border-right: 2px solid #888; padding-left: 1em; color: #777;">
+<p style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; text-align: justify; margin: 0px; color: black; line-height: 26px;"><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/tj/commander.js"  style="text-decoration: none; word-wrap: break-word; font-weight: bold; color: #009688; border-bottom: 1px solid #009688;">commander.js</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; text-align: justify; margin: 0px; color: black; line-height: 26px;">命令行界面解决方案，可以很方便的去实现命令行中的一些命令。</p>
+<p style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; text-align: justify; margin: 0px; color: black; line-height: 26px;"><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/SBoudrias/Inquirer.js"  style="text-decoration: none; word-wrap: break-word; font-weight: bold; color: #009688; border-bottom: 1px solid #009688;">Inquirer.js</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; text-align: justify; margin: 0px; color: black; line-height: 26px;">一组通用的交互式命令行用户界面，主要用于实现和用户的交互。</p>
+<p style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; text-align: justify; margin: 0px; color: black; line-height: 26px;"><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/sindresorhus/ora"  style="text-decoration: none; word-wrap: break-word; font-weight: bold; color: #009688; border-bottom: 1px solid #009688;">ora</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; text-align: justify; margin: 0px; color: black; line-height: 26px;">命令行界面提示反馈，比如loading等。</p>
+<p style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; text-align: justify; margin: 0px; color: black; line-height: 26px;"><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://github.com/chalk/chalk"  style="text-decoration: none; word-wrap: break-word; font-weight: bold; color: #009688; border-bottom: 1px solid #009688;">Chalk</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; text-align: justify; margin: 0px; color: black; line-height: 26px;">终端字符串样式处理正确。</p>
+<p style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; text-align: justify; margin: 0px; color: black; line-height: 26px;"><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://www.npmjs.com/package/download-git-repo"  style="text-decoration: none; word-wrap: break-word; font-weight: bold; color: #009688; border-bottom: 1px solid #009688;">download-git-repo</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+<p style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; text-align: justify; margin: 0px; color: black; line-height: 26px;">从github等仓库下载模板项目。</p>
+</blockquote>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">下面将主要介绍上述库的使用和cli工具的实现。</p>
+<h2 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0px; font-weight: bold; font-size: 22px; color: #009688; padding-left: 10px; margin: 1em auto; border-left: 3px solid #009688;"><span class="prefix" style="display: none;"></span><span class="content">二、搭建脚手架项目</span><span class="suffix"></span></h2>
+<h3 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0px; font-weight: bold; color: black; font-size: 20px; margin: 0.6em auto; padding-left: 10px; border-left: 2px solid #009688;"><span class="prefix" style="display: none;"></span><span class="content">（一）新建项目</span><span class="suffix" style="display: none;"></span></h3>
+<ul data-tool="mdnice编辑器" style="margin-top: 8px; margin-bottom: 8px; padding-left: 25px; color: black; list-style-type: disc;">
+<li><section style="margin-top: 5px; margin-bottom: 5px; line-height: 26px; text-align: left; color: rgb(1,1,1); font-weight: 500;">新建一个项目文件夹，然后执行命令，</section></li></ul>
+<pre class="custom" data-tool="mdnice编辑器" style="margin-top: 10px; margin-bottom: 10px;"><code class="hljs" style="overflow-x: auto; padding: 16px; color: #383a42; background: #fafafa; display: -webkit-box; font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; border-radius: 0px; font-size: 12px; -webkit-overflow-scrolling: touch;">npm&nbsp;init&nbsp;-y<br></code></pre>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">初始化项目的<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">package.json</code>。</p>
+<ul data-tool="mdnice编辑器" style="margin-top: 8px; margin-bottom: 8px; padding-left: 25px; color: black; list-style-type: disc;">
+<li><section style="margin-top: 5px; margin-bottom: 5px; line-height: 26px; text-align: left; color: rgb(1,1,1); font-weight: 500;"><p style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">在项目文件夹下新建<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">index.js</code>。</p>
+</section></li><li><section style="margin-top: 5px; margin-bottom: 5px; line-height: 26px; text-align: left; color: rgb(1,1,1); font-weight: 500;"><p style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">在<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">package.json</code>文件中添加以下代码，指定<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">bin</code>入口文件，</p>
+</section></li></ul>
+<pre class="custom" data-tool="mdnice编辑器" style="margin-top: 10px; margin-bottom: 10px;"><code class="hljs" style="overflow-x: auto; padding: 16px; color: #383a42; background: #fafafa; display: -webkit-box; font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; border-radius: 0px; font-size: 12px; -webkit-overflow-scrolling: touch;">...<br>bin:&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-string" style="color: #50a14f; line-height: 26px;">"xycli"</span>:&nbsp;<span class="hljs-string" style="color: #50a14f; line-height: 26px;">"./index.js"</span><br>&#125;<br>...<br></code></pre>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">以后，我们就可以用<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">xycli -</code>来调用cli工具的命令。</p>
+<ul data-tool="mdnice编辑器" style="margin-top: 8px; margin-bottom: 8px; padding-left: 25px; color: black; list-style-type: disc;">
+<li><section style="margin-top: 5px; margin-bottom: 5px; line-height: 26px; text-align: left; color: rgb(1,1,1); font-weight: 500;">在项目中安装上述依赖</section></li></ul>
+<pre class="custom" data-tool="mdnice编辑器" style="margin-top: 10px; margin-bottom: 10px;"><code class="hljs" style="overflow-x: auto; padding: 16px; color: #383a42; background: #fafafa; display: -webkit-box; font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; border-radius: 0px; font-size: 12px; -webkit-overflow-scrolling: touch;">npm&nbsp;i&nbsp;-S&nbsp;commander&nbsp;inquirer&nbsp;ora&nbsp;download-git-repo&nbsp;chalk<br></code></pre>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">此时，项目搭建基本完成，接下来就是在<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">index.js</code>去实现逻辑。</p>
+<h3 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0px; font-weight: bold; color: black; font-size: 20px; margin: 0.6em auto; padding-left: 10px; border-left: 2px solid #009688;"><span class="prefix" style="display: none;"></span><span class="content">（二）cli实现</span><span class="suffix" style="display: none;"></span></h3>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">在<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">index.js</code>头部加入</p>
+<pre class="custom" data-tool="mdnice编辑器" style="margin-top: 10px; margin-bottom: 10px;"><code class="hljs" style="overflow-x: auto; padding: 16px; color: #383a42; background: #fafafa; display: -webkit-box; font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; border-radius: 0px; font-size: 12px; -webkit-overflow-scrolling: touch;"><span class="hljs-meta" style="color: #4078f2; line-height: 26px;">#!/usr/bin/env&nbsp;node</span><br></code></pre>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">用来<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">指定用node执行脚本文件</code></p>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">然后引入上述所涉及到的库</p>
+<pre class="custom" data-tool="mdnice编辑器" style="margin-top: 10px; margin-bottom: 10px;"><code class="hljs" style="overflow-x: auto; padding: 16px; color: #383a42; background: #fafafa; display: -webkit-box; font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; border-radius: 0px; font-size: 12px; -webkit-overflow-scrolling: touch;"><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">const</span>&nbsp;program&nbsp;=&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">require</span>(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'commander'</span>);<br><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">const</span>&nbsp;inquirer&nbsp;=&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">require</span>(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'inquirer'</span>);<br><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">const</span>&nbsp;chalk&nbsp;=&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">require</span>(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'chalk'</span>);<br><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">const</span>&nbsp;ora&nbsp;=&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">require</span>(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'ora'</span>);<br><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">const</span>&nbsp;download&nbsp;=&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">require</span>(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'download-git-repo'</span>);<br></code></pre>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">使用<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">commander</code>定义我们的命令</p>
+<pre class="custom" data-tool="mdnice编辑器" style="margin-top: 10px; margin-bottom: 10px;"><code class="hljs" style="overflow-x: auto; padding: 16px; color: #383a42; background: #fafafa; display: -webkit-box; font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; border-radius: 0px; font-size: 12px; -webkit-overflow-scrolling: touch;">program<br>&nbsp;&nbsp;&nbsp;&nbsp;.command(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'init&nbsp;&lt;project&gt;'</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;.description(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'Create&nbsp;a&nbsp;new&nbsp;project'</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;.action(<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">async</span>&nbsp;(project)&nbsp;=&gt;&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&#125;)<br></code></pre>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">这里定义了一个<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">init</code>命令，传入参数<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">project</code>，作为项目名称，</p>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">在执行<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">init</code>时，首先需要<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">拉取模板项目代码</code>，使用<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">download-git-repo</code>，采用<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">git clone</code>方式下载项目。</p>
+<pre class="custom" data-tool="mdnice编辑器" style="margin-top: 10px; margin-bottom: 10px;"><code class="hljs" style="overflow-x: auto; padding: 16px; color: #383a42; background: #fafafa; display: -webkit-box; font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; border-radius: 0px; font-size: 12px; -webkit-overflow-scrolling: touch;"><span class="hljs-comment" style="color: #a0a1a7; font-style: italic; line-height: 26px;">/**<br>*&nbsp;下载模板项目<br>*&nbsp;<span class="hljs-doctag" style="color: #a626a4; line-height: 26px;">@param&nbsp;<span class="hljs-type" style="color: #986801; line-height: 26px;">&#123;string&#125;</span>&nbsp;<span class="hljs-variable" style="color: #986801; line-height: 26px;">dir</span></span>&nbsp;-&nbsp;创建项目的文件夹<br>*&nbsp;<span class="hljs-doctag" style="color: #a626a4; line-height: 26px;">@param&nbsp;<span class="hljs-type" style="color: #986801; line-height: 26px;">&#123;string&#125;</span>&nbsp;<span class="hljs-variable" style="color: #986801; line-height: 26px;">path</span></span>&nbsp;-&nbsp;模板项目git路径<br>*&nbsp;<span class="hljs-doctag" style="color: #a626a4; line-height: 26px;">@returns&nbsp;<span class="hljs-type" style="color: #986801; line-height: 26px;">&#123;Promise&#125;</span>&nbsp;</span>返回一个promise对象，成功&nbsp;Success/失败&nbsp;Error<br>**/</span><br><span class="hljs-function" style="line-height: 26px;"><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">function</span>&nbsp;<span class="hljs-title" style="color: #4078f2; line-height: 26px;">downloadTemplate</span>(<span class="hljs-params" style="line-height: 26px;">dir,&nbsp;path</span>)&nbsp;</span>&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">return</span>&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">new</span>&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">Promise</span>(<span class="hljs-function" style="line-height: 26px;">(<span class="hljs-params" style="line-height: 26px;">resolve</span>)&nbsp;=&gt;</span>&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;download(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">`direct:<span class="hljs-subst" style="color: #e45649; line-height: 26px;">$&#123;path&#125;</span>`</span>,&nbsp;dir,&nbsp;&#123;&nbsp;<span class="hljs-attr" style="color: #986801; line-height: 26px;">clone</span>:&nbsp;<span class="hljs-literal" style="color: #0184bb; line-height: 26px;">true</span>&nbsp;&#125;,&nbsp;<span class="hljs-function" style="line-height: 26px;"><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">function</span>&nbsp;(<span class="hljs-params" style="line-height: 26px;">err</span>)&nbsp;</span>&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">if</span>&nbsp;(err)&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'Error'</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#125;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">else</span>&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'Success'</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#125;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#125;)<br>&nbsp;&nbsp;&nbsp;&nbsp;&#125;)<br>&#125;<br></code></pre>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">拉取完代码后，就要执行<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">npm install</code>，安装项目依赖，这里使用<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">child_process.exec</code>来执行cmd命令。</p>
+<pre class="custom" data-tool="mdnice编辑器" style="margin-top: 10px; margin-bottom: 10px;"><code class="hljs" style="overflow-x: auto; padding: 16px; color: #383a42; background: #fafafa; display: -webkit-box; font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; border-radius: 0px; font-size: 12px; -webkit-overflow-scrolling: touch;"><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">const</span>&nbsp;child_process&nbsp;=&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">require</span>(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'child_process'</span>);<br></code></pre>
+<pre class="custom" data-tool="mdnice编辑器" style="margin-top: 10px; margin-bottom: 10px;"><code class="hljs" style="overflow-x: auto; padding: 16px; color: #383a42; background: #fafafa; display: -webkit-box; font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; border-radius: 0px; font-size: 12px; -webkit-overflow-scrolling: touch;"><span class="hljs-comment" style="color: #a0a1a7; font-style: italic; line-height: 26px;">/**<br>*&nbsp;安装项目依赖<br>*&nbsp;<span class="hljs-doctag" style="color: #a626a4; line-height: 26px;">@param&nbsp;<span class="hljs-type" style="color: #986801; line-height: 26px;">&#123;string&#125;</span>&nbsp;<span class="hljs-variable" style="color: #986801; line-height: 26px;">dir</span></span>&nbsp;-&nbsp;存放项目的文件夹<br>*&nbsp;<span class="hljs-doctag" style="color: #a626a4; line-height: 26px;">@returns&nbsp;<span class="hljs-type" style="color: #986801; line-height: 26px;">&#123;Promise&#125;</span>&nbsp;</span>返回一个promise对象，成功&nbsp;Success/失败&nbsp;Error<br>**/</span><br><span class="hljs-function" style="line-height: 26px;"><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">function</span>&nbsp;<span class="hljs-title" style="color: #4078f2; line-height: 26px;">initProject</span>(<span class="hljs-params" style="line-height: 26px;">dir</span>)&nbsp;</span>&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">return</span>&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">new</span>&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">Promise</span>(<span class="hljs-function" style="line-height: 26px;">(<span class="hljs-params" style="line-height: 26px;">resolve,&nbsp;reject</span>)&nbsp;=&gt;</span>&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;child_process.exec(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">`cd&nbsp;<span class="hljs-subst" style="color: #e45649; line-height: 26px;">$&#123;dir&#125;</span>&nbsp;&amp;&amp;&nbsp;npm&nbsp;i`</span>,&nbsp;(err)&nbsp;=&gt;&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">if</span>&nbsp;(err)&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'Error'</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#125;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">else</span>&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'Success'</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#125;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#125;)<br>&nbsp;&nbsp;&nbsp;&nbsp;&#125;)<br>&#125;<br></code></pre>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">上面就是cli工具基本的流程，整理之后的代码如下</p>
+<h3 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0px; font-weight: bold; color: black; font-size: 20px; margin: 0.6em auto; padding-left: 10px; border-left: 2px solid #009688;"><span class="prefix" style="display: none;"></span><span class="content">（三）cli脚手架代码</span><span class="suffix" style="display: none;"></span></h3>
+<pre class="custom" data-tool="mdnice编辑器" style="margin-top: 10px; margin-bottom: 10px;"><code class="hljs" style="overflow-x: auto; padding: 16px; color: #383a42; background: #fafafa; display: -webkit-box; font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; border-radius: 0px; font-size: 12px; -webkit-overflow-scrolling: touch;"><span class="hljs-meta" style="color: #4078f2; line-height: 26px;">#!/usr/bin/env&nbsp;node</span><br><br><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">const</span>&nbsp;program&nbsp;=&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">require</span>(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'commander'</span>);<br><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">const</span>&nbsp;inquirer&nbsp;=&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">require</span>(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'inquirer'</span>);<br><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">const</span>&nbsp;chalk&nbsp;=&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">require</span>(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'chalk'</span>);<br><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">const</span>&nbsp;ora&nbsp;=&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">require</span>(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'ora'</span>);<br><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">const</span>&nbsp;download&nbsp;=&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">require</span>(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'download-git-repo'</span>);<br><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">const</span>&nbsp;child_process&nbsp;=&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">require</span>(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'child_process'</span>);<br><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">const</span>&nbsp;package&nbsp;=&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">require</span>(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'./package.json'</span>);<br><br>program.version(package.version);<br><br><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">const</span>&nbsp;templateUrl&nbsp;=&nbsp;<span class="hljs-string" style="color: #50a14f; line-height: 26px;">``</span>;&nbsp;<span class="hljs-comment" style="color: #a0a1a7; font-style: italic; line-height: 26px;">//&nbsp;模板项目git路径</span><br><br>program<br>&nbsp;&nbsp;&nbsp;&nbsp;.command(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'init&nbsp;&lt;project&gt;'</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;.description(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'Create&nbsp;a&nbsp;new&nbsp;project'</span>)<br>&nbsp;&nbsp;&nbsp;&nbsp;.action(<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">async</span>&nbsp;(project)&nbsp;=&gt;&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">console</span>.log(chalk.green(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">`开始创建项目<span class="hljs-subst" style="color: #e45649; line-height: 26px;">$&#123;project&#125;</span>...`</span>));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">let</span>&nbsp;spinner&nbsp;=&nbsp;ora(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'下载模板&nbsp;...'</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;spinner.start();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">const</span>&nbsp;resDownload&nbsp;=&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">await</span>&nbsp;downloadTemplate(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">`./<span class="hljs-subst" style="color: #e45649; line-height: 26px;">$&#123;project&#125;</span>`</span>,&nbsp;templateUrl);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">if</span>&nbsp;(resDownload&nbsp;===&nbsp;<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'Error'</span>)&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;spinner.stop();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#125;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">else</span>&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">if</span>&nbsp;(resDownload&nbsp;===&nbsp;<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'Success'</span>)&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;spinner.succeed();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">console</span>.log(chalk.green(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'下载模板完成！'</span>));<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;spinner&nbsp;=&nbsp;ora(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'npm&nbsp;install&nbsp;...'</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;spinner.start();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">const</span>&nbsp;resInit&nbsp;=&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">await</span>&nbsp;initProject(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">`./<span class="hljs-subst" style="color: #e45649; line-height: 26px;">$&#123;project&#125;</span>`</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">if</span>&nbsp;(resInit&nbsp;===&nbsp;<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'Error'</span>)&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;spinner.stop();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#125;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">else</span>&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">if</span>&nbsp;(resInit&nbsp;===&nbsp;<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'Success'</span>)&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;spinner.succeed();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">console</span>.log(chalk.green(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'npm&nbsp;install&nbsp;complete'</span>));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">console</span>.log(chalk.green(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">`npm&nbsp;start&nbsp;启动项目`</span>));<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#125;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#125;<br>&nbsp;&nbsp;&nbsp;&nbsp;&#125;)<br><br><span class="hljs-function" style="line-height: 26px;"><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">function</span>&nbsp;<span class="hljs-title" style="color: #4078f2; line-height: 26px;">downloadTemplate</span>(<span class="hljs-params" style="line-height: 26px;">dir,&nbsp;path</span>)&nbsp;</span>&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">return</span>&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">new</span>&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">Promise</span>(<span class="hljs-function" style="line-height: 26px;">(<span class="hljs-params" style="line-height: 26px;">resolve</span>)&nbsp;=&gt;</span>&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;download(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">`direct:<span class="hljs-subst" style="color: #e45649; line-height: 26px;">$&#123;path&#125;</span>`</span>,&nbsp;dir,&nbsp;&#123;&nbsp;<span class="hljs-attr" style="color: #986801; line-height: 26px;">clone</span>:&nbsp;<span class="hljs-literal" style="color: #0184bb; line-height: 26px;">true</span>&nbsp;&#125;,&nbsp;<span class="hljs-function" style="line-height: 26px;"><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">function</span>&nbsp;(<span class="hljs-params" style="line-height: 26px;">err</span>)&nbsp;</span>&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">if</span>&nbsp;(err)&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'Error'</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#125;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">else</span>&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'Success'</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#125;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#125;)<br>&nbsp;&nbsp;&nbsp;&nbsp;&#125;)<br>&#125;<br><br><span class="hljs-function" style="line-height: 26px;"><span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">function</span>&nbsp;<span class="hljs-title" style="color: #4078f2; line-height: 26px;">initProject</span>(<span class="hljs-params" style="line-height: 26px;">dir</span>)&nbsp;</span>&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">return</span>&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">new</span>&nbsp;<span class="hljs-built_in" style="color: #c18401; line-height: 26px;">Promise</span>(<span class="hljs-function" style="line-height: 26px;">(<span class="hljs-params" style="line-height: 26px;">resolve,&nbsp;reject</span>)&nbsp;=&gt;</span>&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;child_process.exec(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">`cd&nbsp;<span class="hljs-subst" style="color: #e45649; line-height: 26px;">$&#123;dir&#125;</span>&nbsp;&amp;&amp;&nbsp;npm&nbsp;i`</span>,&nbsp;(err)&nbsp;=&gt;&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">if</span>&nbsp;(err)&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'Error'</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#125;&nbsp;<span class="hljs-keyword" style="color: #a626a4; line-height: 26px;">else</span>&nbsp;&#123;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;resolve(<span class="hljs-string" style="color: #50a14f; line-height: 26px;">'Success'</span>);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#125;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#125;)<br>&nbsp;&nbsp;&nbsp;&nbsp;&#125;)<br>&#125;<br><br>program.parse(process.argv);<br><br></code></pre>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">上面实现了一个比较简单的<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">cli</code>工具。</p>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">这边并没有使用<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">inquirer</code>，也没有涉及一些复杂的用户交互操作。具体实际应用可自行扩展。</p>
+<h3 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0px; font-weight: bold; color: black; font-size: 20px; margin: 0.6em auto; padding-left: 10px; border-left: 2px solid #009688;"><span class="prefix" style="display: none;"></span><span class="content">（四）cli工具使用</span><span class="suffix" style="display: none;"></span></h3>
+<ul data-tool="mdnice编辑器" style="margin-top: 8px; margin-bottom: 8px; padding-left: 25px; color: black; list-style-type: disc;">
+<li><section style="margin-top: 5px; margin-bottom: 5px; line-height: 26px; text-align: left; color: rgb(1,1,1); font-weight: 500;">在项目根目录执行<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">npm link</code></section></li><li><section style="margin-top: 5px; margin-bottom: 5px; line-height: 26px; text-align: left; color: rgb(1,1,1); font-weight: 500;">执行<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">xycli init test-project</code>，就可以自动创建一个模板项目。</section></li></ul>
+<h2 data-tool="mdnice编辑器" style="margin-top: 30px; margin-bottom: 15px; padding: 0px; font-weight: bold; font-size: 22px; color: #009688; padding-left: 10px; margin: 1em auto; border-left: 3px solid #009688;"><span class="prefix" style="display: none;"></span><span class="content">三、总结</span><span class="suffix"></span></h2>
+<p data-tool="mdnice编辑器" style="font-size: 16px; padding-top: 8px; padding-bottom: 8px; margin: 0; line-height: 26px; color: black; text-align: justify;">以前总以为<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">cli</code>工具很神秘，当我们静下来仔细去探究一下的话，还是有迹可循的。当我们揭开它神秘面纱的时候，就可以自己实现一个定制化的<code style="font-size: 14px; word-wrap: break-word; padding: 2px 4px; border-radius: 4px; margin: 0 2px; background-color: rgba(27,31,35,.05); font-family: Operator Mono, Consolas, Monaco, Menlo, monospace; word-break: break-all; color: #009688;">cli</code>工具。</p>
+</section></div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ 本文结束，感谢您的阅读 ------</div></div><div class="post-copyright copyright"><div class="copyright-author"><span class="copyright-author__name">本文作者: </span><span class="copyright-author__value"><a href="https://aurpustre.github.io">Aurpustre</a></span></div><div class="copyright-link"><span class="copyright-link__name">本文链接: </span><span class="copyright-link__value"><a href="https://aurpustre.github.io/2020/10/16/make-cli/">https://aurpustre.github.io/2020/10/16/make-cli/</a></span></div><div class="copyright-notice"><span class="copyright-notice__name">版权声明: </span><span class="copyright-notice__value">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" rel="external nofollow" target="_blank">BY-NC-SA</a> 许可协议。转载请注明出处！</span></div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://aurpustre.github.io/tags/cli/">cli</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="https://aurpustre.github.io/tags/node/">node</a></span></div><nav class="post-paginator paginator"><div class="paginator-next"><a class="paginator-next__link" href="/2020/10/05/hello-world/"><span class="paginator-prev__text">Github Pages简单搭建个人博客</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><section class="sidebar-toc hide"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text"></span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#nice"><span class="toc-number">1.1.</span> <span class="toc-text">一、脚手架工具涉及的内容</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nice"><span class="toc-number">1.2.</span> <span class="toc-text">二、搭建脚手架项目</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#nice"><span class="toc-number">1.2.1.</span> <span class="toc-text">（一）新建项目</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nice"><span class="toc-number">1.2.2.</span> <span class="toc-text">（二）cli实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nice"><span class="toc-number">1.2.3.</span> <span class="toc-text">（三）cli脚手架代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nice"><span class="toc-number">1.2.4.</span> <span class="toc-text">（四）cli工具使用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#nice"><span class="toc-number">1.3.</span> <span class="toc-text">三、总结</span></a></li></ol></li></ol></section><!-- ov = overview--><section class="sidebar-ov"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.png" alt="avatar"></div><p class="sidebar-ov-author__text">Aurpustre</p></div><div class="sidebar-ov-social"><a class="sidebar-ov-social-item" href="https://github.com/Aurpustre" target="_blank" rel="noopener" data-popover="Github" data-popover-pos="up"><span class="sidebar-ov-social-item__icon"><i class="fab fa-github"></i></span></a></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">2</div><div class="sidebar-ov-state-item__name">归档</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">1</div><div class="sidebar-ov-state-item__name">分类</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">2</div><div class="sidebar-ov-state-item__name">标签</div></a></div><div class="sidebar-ov-cc"><a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en" target="_blank" rel="noopener" data-popover="知识共享许可协议" data-popover-pos="up"><img src="/images/cc-by-nc-sa.svg"></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">你已阅读了 </span><span class="sidebar-reading-info__num">0</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2020</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>Aurpustre</span></div><div><span>由 <a href="http://hexo.io/" title="Hexo" target="_blank" rel="noopener">Hexo</a> 强力驱动</span><span> v5.2.0</span><span class="footer__devider">|</span><span>主题 - <a href="https://github.com/liuyib/hexo-theme-stun/" title="Stun" target="_blank" rel="noopener">Stun</a></span><span> v2.1.1</span></div><div class="busuanzi"><span class="busuanzi-siteuv"><span class="busuanzi-siteuv__icon"><i class="fas fa-user"></i></span><span class="busuanzi-siteuv__info">访问人数</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_uv"></span></span><span class="busuanzi-sitepv"><span class="busuanzi-siteuv__icon"><i class="fas fa-eye"></i></span><span class="busuanzi-siteuv__info">浏览总量</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_pv"></span></span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="搜索文章（支持多关键词，请用空格分隔）"></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script src="//cdn.jsdelivr.net/npm/ribbon.js@latest/dist/ribbon.min.js" size="120" alpha="0.6" zIndex="-1"></script><script>function initSearch() {
+  var isXML = true;
+  var search_path = 'search.json';
+
+  if (!search_path) {
+    search_path = 'search.xml';
+  } else if (/json$/i.test(search_path)) {
+    isXML = false;
+  }
+
+  var path = '/' + search_path;
+  $.ajax({
+    url: path,
+    dataType: isXML ? 'xml' : 'json',
+    async: true,
+    success: function (res) {
+      var datas = isXML ? $('entry', res).map(function () {
+        // 将 XML 转为 JSON
+        return {
+          title: $('title', this).text(),
+          content: $('content', this).text(),
+          url: $('url', this).text()
+        };
+      }).get() : res;
+      var $input = $('.search-input input');
+      var $result = $('.search-results');
+      // 搜索对象（标题、内容）的权重，影响显示顺序
+      var WEIGHT = { title: 100, content: 1 };
+      var searchPost = function () {
+        var searchText = $input.val().toLowerCase().trim();
+        // 根据空白字符分隔关键字
+        var keywords = searchText.split(/[\s]+/);
+        // 搜索结果
+        var matchPosts = [];
+
+        // 有多个关键字时，将原文字整个保存下来
+        if (keywords.length > 1) {
+          keywords.push(searchText);
+        }
+        // 防止未输入字符时搜索
+        if (searchText.length > 0) {
+          datas.forEach(function (data) {
+            var isMatch  = false;
+            // 没有标题的文章使用预设的 i18n 变量代替
+            var title = (data.title && data.title.trim()) || '[ 文章无标题 ]';
+            var titleLower = title && title.toLowerCase();
+            // 删除 HTML 标签 和 所有空白字符
+            var content = data.content && data.content.replace(/<[^>]+>/g, '');
+            var contentLower = content && content.toLowerCase();
+            // 删除重复的 /
+            var postURL = data.url && decodeURI(data.url).replace(/\/{2,}/g, '/');
+            // 标题中匹配到的关键词
+            var titleHitSlice = [];
+            // 内容中匹配到的关键词
+            var contentHitSlice = [];
+
+            keywords.forEach(function (keyword) {
+              /**
+              * 获取匹配的关键词的索引
+              * @param {String} keyword 要匹配的关键字
+              * @param {String} text 原文字
+              * @param {Boolean} caseSensitive 是否区分大小写
+              * @param {Number} weight 匹配对象的权重。权重大的优先显示
+              * @return {Array}
+              */
+              function getIndexByword (word, text, caseSensitive, weight) {
+                if (!word || !text) {
+                  return [];
+                };
+
+                var startIndex = 0; // 每次匹配的开始索引
+                var index = -1;     // 匹配到的索引值
+                var result = [];    // 匹配结果
+
+                if (!caseSensitive) {
+                  word = word.toLowerCase();
+                  text = text.toLowerCase();
+                }
+
+                while((index = text.indexOf(word, startIndex)) !== -1) {
+                  var hasMatch = false;
+                  // 索引位置相同的关键词，保留长度较长的
+                  titleHitSlice.forEach(function (hit) {
+                    if (hit.index === index && hit.word.length < word.length) {
+                      hit.word = word;
+                      hasMatch = true;
+                    }
+                  });
+                  startIndex = index + word.length;
+                  !hasMatch && result.push({ index: index, word: word, weight: weight });
+                }
+                return result;
+              }
+              titleHitSlice = titleHitSlice.concat(getIndexByword(keyword, titleLower, false, WEIGHT.title));
+              contentHitSlice = contentHitSlice.concat(getIndexByword(keyword, contentLower, false, WEIGHT.content));
+            });
+
+            var hitTitle = titleHitSlice.length;
+            var hitContent = contentHitSlice.length;
+
+            if (hitTitle > 0 || hitContent > 0) {
+              isMatch = true;
+            }
+            if (isMatch) {
+              ;[titleHitSlice, contentHitSlice].forEach(function (hit) {
+                // 按照匹配文字的索引的递增顺序排序
+                hit.sort(function (left, right) {
+                  return left.index - right.index;
+                });
+              });
+              /**
+              * 给文本中匹配到的关键词添加标记，从而进行高亮显示
+              * @param {String} text 原文本
+              * @param {Array} hitSlice 匹配项的索引信息
+              * @param {Number} start 开始索引
+              * @param {Number} end 结束索引
+              * @return {String}
+              */
+              function highlightKeyword (text, hitSlice, start, end) {
+                if (!text || !hitSlice || !hitSlice.length) {
+                  return;
+                }
+
+                var result = '';
+                var startIndex = start;
+                var endIndex = end;
+                hitSlice.forEach(function (hit) {
+                  if (hit.index < startIndex) {
+                    return;
+                  }
+
+                  var hitWordEnd = hit.index + hit.word.length;
+                  result += text.slice(startIndex, hit.index);
+                  result += '<b>' + text.slice(hit.index, hitWordEnd) + '</b>';
+                  startIndex = hitWordEnd;
+                });
+                result += text.slice(startIndex, endIndex);
+                return result;
+              }
+
+              var postData = {};
+              // 文章总的搜索权重
+              var postWeight = titleHitSlice.length * WEIGHT.title + contentHitSlice.length * WEIGHT.content;
+              // 标记匹配关键词后的标题
+              var postTitle = highlightKeyword(title, titleHitSlice, 0, title.length) || title;
+              // 标记匹配关键词后的内容
+              var postContent;
+              // 显示内容的长度
+              var SHOW_WORD_LENGTH = 200;
+              // 命中关键词前的字符显示长度
+              var SHOW_WORD_FRONT_LENGTH = 20;
+              var SHOW_WORD_END_LENGTH = SHOW_WORD_LENGTH - SHOW_WORD_FRONT_LENGTH;
+
+              // 截取匹配的第一个字符，前后共 200 个字符来显示
+              if (contentHitSlice.length > 0) {
+                var firstIndex = contentHitSlice[0].index;
+                var start = firstIndex > SHOW_WORD_FRONT_LENGTH ? firstIndex - SHOW_WORD_FRONT_LENGTH : 0;
+                var end = firstIndex + SHOW_WORD_END_LENGTH;
+                postContent = highlightKeyword(content, contentHitSlice, start, end);
+              } else { // 未匹配到内容，直接截取前 200 个字符来显示
+                postContent = content.slice(0, SHOW_WORD_LENGTH);
+              }
+              postData.title = postTitle;
+              postData.content = postContent;
+              postData.url = postURL;
+              postData.weight = postWeight;
+              matchPosts.push(postData);
+            }
+          });
+        }
+
+        var resultInnerHtml = '';
+        if (matchPosts.length) {
+          // 按权重递增的顺序排序，使权重大的优先显示
+          matchPosts.sort(function (left, right) {
+            return right.weight - left.weight;
+          });
+          resultInnerHtml += '<ul>';
+          matchPosts.forEach(function (post) {
+            resultInnerHtml += '<li><a class="search-results-title" href="' + post.url + '">';
+            resultInnerHtml += post.title;
+            resultInnerHtml += '</a><div class="search-results-content">';
+            resultInnerHtml += post.content;
+            resultInnerHtml += '</div></li>';
+          });
+          resultInnerHtml += '</ul>';
+        } else {
+          resultInnerHtml += '<div class="search-results-none"><i class="far fa-meh"></i></div>';
+        }
+        $result.html(resultInnerHtml);
+      };
+      $input.on('input', searchPost);
+      $input.on('keyup', function (e) {
+        if (e.keyCode === Stun.utils.codeToKeyCode('Enter')) {
+          searchPost();
+        }
+      });
+    }
+  });
+}
+
+function closeSearch () {
+  $('body').css({ overflow: 'auto' });
+  $('.search-popup').css({ display: 'none' });
+  $('.search-mask').css({ display: 'none' });
+}
+
+window.addEventListener('DOMContentLoaded', function () {
+  Stun.utils.pjaxReloadLocalSearch = function () {
+    $('.header-nav-search').on('click', function (e) {
+      e.stopPropagation();
+      $('body').css('overflow', 'hidden');
+      $('.search-popup')
+        .velocity('stop')
+        .velocity('transition.expandIn', {
+          duration: 300,
+          complete: function () {
+            $('.search-popup input').focus();
+          }
+        });
+      $('.search-mask')
+        .velocity('stop')
+        .velocity('transition.fadeIn', {
+          duration: 300
+        });
+
+      initSearch();
+    });
+    $('.search-mask, .search-close').on('click', function () {
+      closeSearch();
+    });
+    $(document).on('keydown', function (e) {
+      // Escape <=> 27
+      if (e.keyCode === Stun.utils.codeToKeyCode('Escape')) {
+        closeSearch();
+      }
+    });
+  };
+
+  Stun.utils.pjaxReloadLocalSearch();
+}, false);</script><script src="//cdn.jsdelivr.net/gh/sukkaw/busuanzi@latest/bsz.pure.mini.js" async></script><script src="/js/utils.js?v=2.1.1"></script><script src="/js/stun-boot.js?v=2.1.1"></script><script src="/js/scroll.js?v=2.1.1"></script><script src="/js/header.js?v=2.1.1"></script><script src="/js/sidebar.js?v=2.1.1"></script><script type="application/json" src="/search.json"></script></body></html>
